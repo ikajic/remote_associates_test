@@ -1,0 +1,6 @@
+*~
+*swp
+*pyc
+
+data/{freeassociations,ratproblems}/other/
+algorithm/other/
