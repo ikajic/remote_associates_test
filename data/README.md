@@ -4,12 +4,12 @@ The data used to create and simulate the RAT model.
 
 The `raw` directory contains experimental data from other researchers:
 
-* freeassociations: word pair association strengths from the free association
+* `raw/freeassociations/`: word pair association strengths from the free association
 experiment by Nelson, McEvoy and Schreiber (1998) at the University of Florida.
 The directory contains a reference to the original sheets, scripts to process
 sheets and to create a connection matrix.
 
-* ratproblems/bowden: 144 RAT problems used to create a normative database by
+* `raw/ratproblems/bowden`: 144 RAT problems used to create a normative database by
 Bowden and Jung-Beeman (2003). The directory contains an xlsx sheet with the
 problems and the performance data (transcript from the original paper) and
 a script to process the xlsx sheet.
