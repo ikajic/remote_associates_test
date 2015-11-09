@@ -8,7 +8,8 @@ Parameters in the model are:
 
 
 from __future__ import division
-from freeassociations.dataio import load_vocabulary
+from data.raw.freeassociations.read_data import load_vocabulary
+from algorithm.simulation import get_difficulties
 
 import numpy as np
 import matplotlib.pyplot as pl
@@ -17,27 +18,12 @@ import pdb
 from model.network import Network
 
 
-def difficulties(positions):
-    easy = positions[:16]       # >64%
-    mid = positions[16:59]      # 32-64%
-    hard = positions[59:]     # <32%
-
-    peas = len((np.where(easy>-1)[0]))/float(len(easy))
-    pmid = len((np.where(mid>-1)[0]))/float(len(mid))
-    phard = len((np.where(hard>-1)[0]))/float(len(hard))
-
-    return peas, pmid, phard
-
-
 def simulate_test(**kwargs):
     # Load the problem set
-    path_test = '../ratdata/bowden/rat_items'
+    net = Network(**kwargs)
+
+    path_test = '../data/processed/rat_items'
     items = np.loadtxt(path_test, dtype=np.character)
-
-    # Model parameters
-    theta = kwargs.get('theta', 1)
-    nr_words = kwargs.get('nr_words', 13)
-
     W, ids, voc = load_vocabulary()
 
     nr_items = len(items)
@@ -45,16 +31,14 @@ def simulate_test(**kwargs):
 
     all_responses = []
 
-    net = Network()
-    net.max_visited = nr_words
-
     for idx in range(nr_items):
         rat_item = items[idx]
+        cues, target = rat_item[:3], rat_item[3]
+        target_id = voc[target]
 
-        target = voc[rat_item[3]]
+        net.setup_problem(cues, target)
 
-        net.setup(rat_item[:3])
-
+        # if WTA fails to pick a winner, try again
         ok = True
         while ok:
             try:
@@ -69,7 +53,7 @@ def simulate_test(**kwargs):
 
         try:
             # position of the solution
-            target_position = responses.index(target)
+            target_position = responses.index(target_id)
         except ValueError:
             # problem not solved
             target_position = -1
@@ -103,7 +87,6 @@ def plot_statistics(solution_pos):
     pl.xlabel('RAT Task ID')
     pl.ylabel('Correct (1) / Wrong (0)')
 
-    print 'Threshold:', param['theta']
     print 'Performance:', success, '/', total
     print 'Success rate:', rate
     print 'Max position', solution_pos.max()
@@ -111,20 +94,16 @@ def plot_statistics(solution_pos):
 
 if __name__ == "__main__":
 
-    param = {'theta': 0,
-             'nr_words': 11,
-             'delta': 1,
+    param = {'nr_words': 5,
+             'theta': 0.0
              }
 
     positions, responses = simulate_test(**param)
 
+    easy, mid, hard = get_difficulties(positions)
 
-    easy = positions[:16]
-    mid = positions[16:59]
-    hard = positions[59:]
+    print 'Easy:', 100*easy
+    print 'Mid:', 100*mid
+    print 'Hard:', 100*hard
 
-    print 'Easy:', 100*len((np.where(easy>-1)[0]))/float(len(easy))
-    print 'Mid:', 100*len((np.where(mid>-1)[0]))/float(len(mid))
-    print 'Hard:', 100*len((np.where(hard>-1)[0]))/float(len(hard))
-
-    plot_statistics(positions)
+    # plot_statistics(positions)

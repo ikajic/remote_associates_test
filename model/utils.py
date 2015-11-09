@@ -59,6 +59,14 @@ def remove_array_duplicates(x):
     Removes duplicate elements in the array of integers `x` while preserving
     the order of the elements.
 
+    Input
+    -----
+    x:  array containing duplicates
+
+    Output
+    ------
+    y: array containing unique elements in the same order as in x
+
     Example
     -------
     >>> x = np.array([10, 10, 3, 3, 3, 8, 8, 8, 8])
@@ -72,4 +80,6 @@ def remove_array_duplicates(x):
         if el not in unique:
             unique.append(el)
 
-    return np.array(unique, dtype=np.int)
+    y =  np.array(unique, dtype=np.int)
+
+    return y

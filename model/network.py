@@ -2,7 +2,7 @@ from __future__ import division
 from utils import step, remove_array_duplicates, mult
 
 import numpy as np
-import data.freeassociations.dataio as dio
+from data.raw.freeassociations.read_data import load_vocabulary
 
 
 class Network(object):
@@ -26,17 +26,27 @@ class Network(object):
 
         Input
         -----
-            max_visited:    maximal allowed number of guesses, default 3
+            nr_words:    maximal allowed number of guesses, default 3
             stim_len:       length of stimulus and winner activity, default 50
         """
         # maximal number of nodes visited in the first layer
-        self.max_visited = kwargs.get('max_visited', 4)
+        self.nr_words = kwargs.get('nr_words', 4)
 
         # stimulus length and the duration of activity for a WTA unit
         self.stim_len = kwargs.get('stim_len', 50)
+ 
+        # weight pruning
+        self.theta = kwargs.get('theta', 0)
+        print('Theta %.3f' % self.theta)
+        print('Words %d' % self.nr_words)
 
         # connection matrix with associative strengths
-        self.W, self.ids, self.voc = dio.load_vocabulary()
+        self.W, self.ids, self.voc = load_vocabulary()
+
+        # prune weights less than threshold
+        if self.theta > 0:
+            print('Pruning connections...')
+            self.W = np.where(self.W > self.theta, self.W, 0)
 
         # number of units
         self.N = np.alen(self.W)
@@ -56,7 +66,7 @@ class Network(object):
         self.theta_w = 1.    # threshold for the WTA layer
         self.I_amp = 1.      # amplitude of the clamped imput
 
-    def setup_problem(self, cues, target, t_max=10000, isi=100):
+    def setup_problem(self, cues, target, t_max=30000, isi=100):
         """
         Initialize the activities in each layer and activate the RAT problem
         cues.
@@ -102,7 +112,7 @@ class Network(object):
         target_active = self.r[t-self.stim_len:t, self.target].sum()
 
         # or certain number of words visited
-        if self.r[t-self.stim_len].sum() == self.max_visited or\
+        if self.r[t-self.stim_len].sum() == self.nr_words or\
            target_active:
             self.t_max = t-1
             terminate = True
@@ -180,14 +190,19 @@ class Network(object):
 
 
 if __name__ == '__main__':
-    problem = ['cottage', 'swiss', 'cake']
-    target = 'cheese'
+    problem = ['worm', 'shelf', 'end']
+    target = 'book'
 
-    param = {'max_visited': 20,
-             'stim_len': 50}
+    param = {'nr_words': 15,
+             'stim_len': 50,
+             'theta': 0.35}
 
     network = Network(**param)
     network.setup_problem(problem, target)
     network.run()
 
-    print('Solution found: %d' % network.solution())
+    if network.solution():
+        sol_pos = np.where(network.visited() == network.voc[target])
+        print('Solution found at: %d' % (sol_pos[0][0]-1))
+    else:
+        print('Solution not found!')

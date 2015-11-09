@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     problem = ['river', 'note', 'account']
     target = 'house'        # wrong response so simulation runs a bit longer
-                            # which leaves this extra space after the winner
+                            # which leaves extra space after the winner
                             # has been picked
 
     param = {'max_visited': 5,
@@ -101,7 +101,7 @@ if __name__ == '__main__':
                       color='black', linewidth=2))
         pl.xlabel('Time (a.u)')
 
-    # ----------------------- Winners:       2n plot
+    # ----------------------- Winners:       2nd plot
     ax = pl.subplot(1, 2, 2)
     ax.set_frame_on(False)
     ax.get_xaxis().tick_bottom()
