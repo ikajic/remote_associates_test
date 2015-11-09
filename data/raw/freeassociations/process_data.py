@@ -1,8 +1,13 @@
 """
-Read in the associated norms in ./data/ and return the following
+Read the spreadsheets in ./data/ and return the following
 information:
     a) the number of normed words (counting yes)
-    b) the matrix: cue x responses association strength matrix
+    b) a pickled file named: free_association_vocabulary
+
+The pickled file contains (in the order):
+    1. idtow dictionary: mapping between word ids and words
+    2. wtoid dictionary: mapping between words and word ids
+    3. numpy array (csr_matrix): cue x responses association strength matrix
 """
 from __future__ import division
 from scipy.sparse import csr_matrix
@@ -12,8 +17,6 @@ import matplotlib.pyplot as pl
 import pandas as pd
 import cPickle as pickle
 import os
-import pdb
-
 
 # directory with the spreadsheets
 datapath = './data/'
@@ -105,12 +108,13 @@ print 'Average number of associates per word:',\
     normed/nr_words, nr_assoc_row.std()
 
 # save the connection matrix and the vocabularies
-resp = raw_input('Save the data? ')
+path = '../../processed/'
+name = 'free_associations_vocabulary'
+resp = raw_input('Save the data to ' + path + name + '? [y/n] ')
 
 if resp in 'yY':
     print 'Saving the vocabularies and the connection matrix...'
-    name = 'free_associations_vocabulary'
-    f = open(name, 'wb')
+    f = open(path + name, 'wb')
     pickle.dump(idtow, f, protocol=2)
     pickle.dump(wtoid, f, protocol=2)
 
@@ -118,14 +122,14 @@ if resp in 'yY':
 
     pickle.dump(sparse_mat, f)
     f.close()
+    print 'Done.'
 
-if 1:
-    # Plot the data
+# if desired, plot the data
+if 0:
     pl.figure()
     pl.hist(nr_assoc_row, bins=int(nr_assoc_row.max()))
     pl.xlabel('Number of associates')
     pl.ylabel('Number of words in the database')
     pl.savefig('fa_word_distr.pdf', bbox_inches='tight')
-
 
     pl.show()

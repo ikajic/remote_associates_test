@@ -1,15 +1,13 @@
 """
-Reads the data from the Bowden experiment and stores only
-those RAT items which exist in the free association database
+Reads the data from the Bowden experiment and stores only those RAT items for
+which the targets and the cue exist in the free association database.
 """
 
-
 from __future__ import division
-from freeassociations.dataio import load_vocabulary
+from data.raw.freeassociations.read_data import load_vocabulary
 
 import numpy as np
 import pandas as pd
-import pdb
 
 
 def get_experimental_data():
@@ -102,22 +100,26 @@ if __name__ == "__main__":
     found_id = set(np.arange(len(rat_items))) - set(not_found_id)
     found_id = list(found_id)
 
-
     nr_exist_items = len(rat_items)-len(not_found_id)
 
-    print('Using %d out of %d RAT items from the Bowden dataset'% 
-	   (nr_exist_items, nr_all_items))
-          
+    print('Using %d out of %d RAT items from the Bowden dataset' %
+          (nr_exist_items, nr_all_items))
 
-    f = open('rat_items', 'w')
+    path = '../../../processed/'
+    name = 'rat_items'
+    resp = raw_input('Save the data to ' + path + name + '? [y/n] ')
 
-    for idx, task in enumerate(rat_items):
-        if idx not in not_found_id:
-            line = ' '.join(task)
-            f.writelines(line + '\n')
-    f.close()
+    if resp in 'yY':
+        f = open(path+name, 'w')
+
+        for idx, task in enumerate(rat_items):
+            if idx not in not_found_id:
+                line = ' '.join(task)
+                f.writelines(line + '\n')
+        f.close()
+        print 'Done'
+
     perc_prob = performance[found_id, 1].sum()/len(found_id)
 
-    print('Average solving rate of the 117 RAT problems: %.2f'%
+    print('Average solving rate of the 117 RAT problems: %.2f' %
           perc_prob)
-
