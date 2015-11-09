@@ -8,13 +8,12 @@ Parameters in the model are:
 
 
 from __future__ import division
-from data.freeassociations.dataio import load_vocabulary
+from data.raw.freeassociations.read_data import load_vocabulary
 
 import numpy as np
 import matplotlib.pyplot as pl
-import pdb
 
-from sa import spread_activity
+from spread_activity import spread_activity
 
 
 def get_difficulties(positions):
@@ -22,24 +21,32 @@ def get_difficulties(positions):
     Splits the array of positions into three parts corresponding
     to three diffrent difficulty levels.
     """
+    # TODO: automatise division of ranges
     easy = positions[:16]
     mid = positions[16:59]
     hard = positions[59:]
 
-    peasy = 100*len((np.where(easy > -1)[0]))/float(len(easy))
-    pmid = 100*len((np.where(mid > -1)[0]))/float(len(mid))
-    phard = 100*len((np.where(hard > -1)[0]))/float(len(hard))
+    peasy = len((np.where(easy > -1)[0]))/float(len(easy))
+    try:
+        pmid = len((np.where(mid > -1)[0]))/float(len(mid))
+    except ZeroDivisionError:
+        pmid = 0
+
+    try:
+        phard = len((np.where(hard > -1)[0]))/float(len(hard))
+    except ZeroDivisionError:
+        phard = 0
 
     return peasy, pmid, phard
 
 
 def simulate_test(**kwargs):
     # Load the problem set
-    path_test = '../data/ratproblems/bowden/rat_items'
+    path_test = '../data/processed/rat_items'
     items = np.loadtxt(path_test, dtype=np.character)
 
     # Model parameters
-    theta = kwargs.get('theta', 1)
+    theta = kwargs.get('theta', 0)
     nr_words = kwargs.get('nr_words', 13)
 
     W, ids, voc = load_vocabulary()
@@ -69,6 +76,8 @@ def simulate_test(**kwargs):
         except ValueError:
             target_position = -1
 
+        # print idx, rat_item, target_position
+
         positions[idx] = target_position
 
     return np.array(positions, dtype=np.int), all_responses
@@ -96,6 +105,7 @@ def plot_statistics(solution_pos):
     pl.xlabel('RAT Task ID')
     pl.ylabel('Correct (1) / Wrong (0)')
 
+    print '----'
     print 'Threshold:', param['theta']
     print 'Performance:', success, '/', total
     print 'Success rate:', rate
@@ -105,15 +115,15 @@ def plot_statistics(solution_pos):
 if __name__ == "__main__":
 
     param = {'theta': 0,
-             'nr_words': 11
+             'nr_words': 30
              }
 
     positions, responses = simulate_test(**param)
 
     easy, mid, hard = get_difficulties(positions)
 
-    print 'Easy:', easy
-    print 'Mid:', mid
-    print 'Hard:', hard
+    print 'Easy:', 100*easy
+    print 'Mid:', 100*mid
+    print 'Hard:', 100*hard
 
     plot_statistics(positions)

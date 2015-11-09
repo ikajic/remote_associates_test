@@ -4,8 +4,8 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as pl
 
-from data.freeassociations.dataio import load_vocabulary
-from algorithm.bowden import simulate_test, get_difficulties
+from data.raw.freeassociations.read_data import load_vocabulary
+from algorithm.simulation import simulate_test, get_difficulties
 from model.utils import nearest_value
 
 
@@ -13,8 +13,7 @@ def simulate_threshold(thresholds, nr_words):
     """
     Simulations with different thresholds.
     """
-    results = np.zeros(len(thresholds))
-    pos = np.zeros((len(thresholds), 3))
+    performance = np.zeros((len(thresholds), 4))
 
     for i, th in enumerate(thresholds):
         print('Threshold = %.2f' % th)
@@ -24,38 +23,44 @@ def simulate_threshold(thresholds, nr_words):
                  }
 
         positions,  _ = simulate_test(**param)
-
-        pos[i, :] = get_difficulties(positions)
         nr_items = len(positions)
-        p_corr = len(np.where(positions > -1)[0])/float(nr_items)
-        results[i] = 100*p_corr
 
-    return pos, results
+        performance[i, :3] = get_difficulties(positions)
+        percent_correct = 100*len(np.where(positions > -1)[0])/nr_items
+        performance[i, 3] = percent_correct
+
+    return performance
 
 
 def simulate_number_of_words(nr_words):
     """
     Simulations with a varying number of responses to a RAT problem.
+    The simulation is run for the maximal number of words and based on that the
+    success rates for a smaller number of words are calculated.
     """
-    threshold = 0
 
-    results = np.zeros(len(nr_words))
-    pos = np.zeros((len(nr_words), 3))
+    performance = np.zeros((len(nr_words), 4))
+    max_words = nr_words[-1]
+
+    # load an existing file
+    try:
+        positions = np.load('nr_words_simulation.npz')['positions']
+        print('Loading existing file...')
+    except IOError:
+        print('Running simulation!')
+        positions,  _ = simulate_test(**{'nr_words': max_words})
+
+    nr_items = float(len(positions))
 
     for i, nr_w in enumerate(nr_words):
         print('Testing words = %d' % nr_w)
-        param = {'theta': threshold,
-                 'nr_words': nr_w
-                 }
+        solutions = np.where(positions < nr_w, positions, -1)
 
-        positions,  _ = simulate_test(**param)
+        performance[i, :3] = get_difficulties(solutions)
+        percent_correct = 100*len(np.where(solutions > -1)[0])/nr_items
+        performance[i, 3] = percent_correct
 
-        pos[i, :] = get_difficulties(positions)
-        nr_items = len(positions)
-        p_corr = len(np.where(positions > -1)[0])/float(nr_items)
-        results[i] = 100*p_corr
-
-    return pos, results
+    return performance
 
 if __name__ == "__main__":
     font = {'family': 'serif',
@@ -64,7 +69,7 @@ if __name__ == "__main__":
     legend_fs = 24
     matplotlib.rc('font', **font)
 
-    # Association data, needed for statistics
+    # Association data, needed for statistics below
     W, ids, voc = load_vocabulary()
     weights = W[W.nonzero()]
 
@@ -83,14 +88,19 @@ if __name__ == "__main__":
     axes = pl.subplot(121)
     min_nr_words, max_nr_words = 4, 35
     words = np.arange(min_nr_words, max_nr_words)
-    posw, results_w = simulate_number_of_words(words)
+    try:
+        print('Loading existing simulation for words')
+        performance_w = np.load('perf_words.npz')['arr_0']
+    except IOError:
+        performance_w = simulate_number_of_words(words)
 
     # Plot all results
-    pl.plot(words, results_w, label='all', linewidth=lw, color=colors[-1])
+    pl.plot(words, performance_w.T[3], label='all',
+            linewidth=lw, color=colors[-1])
 
     # Plot individual curves
     for diff in difficulties:
-        pl.plot(words, posw.T[diff], label=labs[diff],
+        pl.plot(words, 100*performance_w.T[diff], label=labs[diff],
                 linewidth=lw, color=colors[diff], alpha=alphas[diff])
 
         axes.grid(axis='y')
@@ -117,16 +127,21 @@ if __name__ == "__main__":
     axes = pl.subplot(122)
     min_threshold, max_threshold = 0, .44
     step_threshold = 0.01
-    words = 30
+    words = 15
     thresholds = np.arange(min_threshold, max_threshold, step_threshold)
-    post, results_t = simulate_threshold(thresholds, words)
+    try:
+        print('Loading existing simulation for thresholds.')
+        performance_t = np.load('perf_thresh.npz')['arr_0']
+    except IOError:
+        performance_t = simulate_threshold(thresholds, words)
 
     # Plot all results
-    pl.plot(thresholds, results_t, label='all', linewidth=lw, color=colors[-1])
+    pl.plot(thresholds, performance_t.T[3], label='all',
+            linewidth=lw, color=colors[-1])
 
     # Plot individual curves
     for diff in difficulties:
-        pl.plot(thresholds, post.T[diff], label=labs[diff],
+        pl.plot(thresholds, 100*performance_t.T[diff], label=labs[diff],
                 linewidth=lw, color=colors[diff], alpha=alphas[diff])
 
     axes.grid(axis='y')
@@ -154,19 +169,20 @@ if __name__ == "__main__":
 
     for drop in drops:
         for lab, idx in zip(labs, difficulties):
-            maxP = post.T[idx].max()
-            midP, idx_th = nearest_value(post.T[idx], maxP*drop)
+            maxP = performance_t.T[idx].max()
+            midP, idx_th = nearest_value(performance_t.T[idx], maxP*drop)
             theta = thresholds[idx_th]
 
             perc, idx_p = nearest_value(values, theta)
             p = percentiles[idx_p]
 
-            print('Drop by %.d%% for %s items at theta = %.2f (%.0fth percentile)' % 
+            print(('Drop by %.d%% for %s items at theta' +
+                  '= %.2f (%.0fth percentile)') %
                   (drop*100, lab, theta, p))
 
         print('\n')
 
-    if 0:
+    if 1:
         pl.savefig('img/performance.pdf', bbox_inches='tight')
 
     pl.show()

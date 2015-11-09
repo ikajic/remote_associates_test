@@ -3,7 +3,7 @@ Activity spreads only from a single node
 """
 
 from __future__ import division
-from data.freeassociations.dataio import load_vocabulary
+from data.raw.freeassociations.read_data import load_vocabulary
 
 import numpy as np
 import pdb
@@ -14,11 +14,25 @@ def WTA(activations, visited, j, activated):
     """
     Return the index of a unit with the highest activity level which has not
     been visited yet and which is not a current winner.
+
+    Input
+    -----
+    activations:    a list with activation levels for each node/word
+    visited:        list of indices of visited nodes
+    j:              current winner
+    activated:      list of indices of previously activated nodes
+                    (past winners)
+
+    Output
+    ------
+    k:              the index of a winning node
     """
-    # pick a winner
+    # sort activations
     sorted_idx = np.argsort(activations)[::-1]
 
     k = -1
+    # pick the most activated note different from the current winner
+    # and previously visited nodes
     for nb in sorted_idx:
         if (nb not in visited) and (nb != j):
             assert nb not in activated
@@ -93,49 +107,6 @@ def spread_activity(init_nodes, target, W, threshold=0.0, max_visited=11):
     assert len(visited) == max_visited or j == target
 
     return activations, visited
-
-
-def spread_activity_old(init_nodes, W, threshold=0.0, max_visited=11):
-    # reverse the order for the queue
-    cues = copy.deepcopy(init_nodes[::-1])
-
-    # nodes to visit, queue
-    activated = copy.deepcopy(cues)
-
-    # visited nodes
-    visited = []
-
-    activations = np.zeros(np.alen(W))
-    activations[cues] = 1.
-
-    while len(visited) < max_visited:
-        node = activated.pop()
-
-        # indices of incident nodes
-        neighbours = W[node].nonzero()[0]
-
-        # spread the activity to incident nodes
-        activations[neighbours] += np.where(W[node, neighbours] > threshold,
-                                            W[node, neighbours],
-                                            0)*activations[node]
-        visited.append(node)
-
-        # pick a winner
-        if len(visited) >= len(cues):
-            sorted_idx = np.argsort(activations)[::-1]
-
-            for nb in sorted_idx:
-                if (nb not in visited) and (nb != node) and (nb not in cues):
-                    assert nb not in activated
-                    activated.insert(0, nb)
-                    break
-
-            assert len(activated) == 1
-
-    assert len(visited) == max_visited
-
-    return activations, visited
-
 
 if __name__ == "__main__":
     W, ids, voc = load_vocabulary()
