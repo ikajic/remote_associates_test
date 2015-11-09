@@ -1,4 +1,4 @@
-Eight data sheets named:
+Eight data sheets in a CSV format named:
 ```
 Cue_Target_Pairs.A-B_mod
 Cue_Target_Pairs.G-K_mod
