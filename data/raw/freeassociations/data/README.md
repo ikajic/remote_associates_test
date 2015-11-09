@@ -1,7 +1,12 @@
 Eight data sheets named:
-Cue_Target_Pairs.A-B_mod  Cue_Target_Pairs.G-K_mod  Cue_Target_Pairs.S_mod
-Cue_Target_Pairs.C_mod    Cue_Target_Pairs.L-O_mod  Cue_Target_Pairs.T-Z_mod
-Cue_Target_Pairs.D-F_mod  Cue_Target_Pairs.P-R_mod  
+Cue_Target_Pairs.A-B_mod
+Cue_Target_Pairs.G-K_mod
+Cue_Target_Pairs.S_mod
+Cue_Target_Pairs.C_mod
+Cue_Target_Pairs.L-O_mod
+Cue_Target_Pairs.T-Z_mod
+Cue_Target_Pairs.D-F_mod
+Cue_Target_Pairs.P-R_mod  
 
 are stored in this directory.
 
