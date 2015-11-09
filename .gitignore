@@ -2,5 +2,9 @@
 *swp
 *swo
 *pyc
+*npz
 
 other/
+
+# do not include downloaded data-sheets
+Cue_Target_Pairs*
