@@ -19,7 +19,7 @@ import cPickle as pickle
 import os
 
 # directory with the spreadsheets
-datapath = './data/'
+datapath = os.path.join(os.path.dirname(__file__), 'data')
 
 wtoid = dict()      # word to index dictionary
 idtow = dict()      # index to word dictionary
@@ -34,12 +34,13 @@ dir_files = os.listdir(datapath)
 # there should be 8 sheets of data
 sheet_name_pref = 'Cue_Target_'
 nr_sheets = np.array([sheet_name_pref in name for name in dir_files])
-assert nr_sheets.sum() == 8
+assert nr_sheets.sum() == 8,\
+    'Found %d sheets: download them!' % nr_sheets.sum()
 
 # first get all the data from the sheets and store it in a 'database'
 for filename in dir_files:
     # read in the sheet
-    datafile = datapath + filename
+    datafile = os.path.join(datapath, filename)
 
     # skip everything that is not a spreadsheet
     if 'Cue_Target_' not in filename:
@@ -47,7 +48,7 @@ for filename in dir_files:
 
     # read the contents of the spreadsheet
     print 'Processing: ', filename
-    df = pd.read_csv(datafile, skipinitialspace=True)
+    df = pd.read_csv(datafile, skipinitialspace=True, skiprows=3, skipfooter=3)
     normed += df['NORMED?'].value_counts()['YES']
 
     # extract norms
@@ -108,13 +109,14 @@ print 'Average number of associates per word:',\
     normed/nr_words, nr_assoc_row.std()
 
 # save the connection matrix and the vocabularies
-path = '../../processed/'
-name = 'free_associations_vocabulary'
-resp = raw_input('Save the data to ' + path + name + '? [y/n] ')
+# path = '../../processed/'
+path = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir,
+        'processed', 'free_associations_vocabulary')
+resp = raw_input('Save the data to ' + path + '? [y/n] ')
 
 if resp in 'yY':
     print 'Saving the vocabularies and the connection matrix...'
-    f = open(path + name, 'wb')
+    f = open(path, 'wb')
     pickle.dump(idtow, f, protocol=2)
     pickle.dump(wtoid, f, protocol=2)
 

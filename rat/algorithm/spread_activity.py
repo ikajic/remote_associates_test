@@ -1,8 +1,7 @@
 from __future__ import division
-from data.raw.freeassociations.read_data import load_vocabulary
+from rat.data.raw.freeassociations.read_data import load_vocabulary
 
 import numpy as np
-import pdb
 import copy
 
 

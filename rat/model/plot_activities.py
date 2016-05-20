@@ -1,6 +1,5 @@
 from __future__ import division
 
-import pdb
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as pl
@@ -16,10 +15,11 @@ if __name__ == '__main__':
 
     matplotlib.rc('font', **font)
 
+    # wrong response so simulation runs a bit longer
+    # which leaves extra space after the winner
+    # has been picked
     problem = ['river', 'note', 'account']
-    target = 'house'        # wrong response so simulation runs a bit longer
-                            # which leaves extra space after the winner
-                            # has been picked
+    target = 'house'
 
     param = {'max_visited': 5,
              'stim_len': 50}
@@ -127,6 +127,6 @@ if __name__ == '__main__':
     pl.xlabel('Time (a.u)')
 
     if 0:
-        pl.savefig('img/net_activities.pdf', bbox_inches='tight')
+        pl.savefig('net_activities.pdf', bbox_inches='tight')
 
     pl.show()

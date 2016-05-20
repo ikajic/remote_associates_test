@@ -4,9 +4,9 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as pl
 
-from data.raw.freeassociations.read_data import load_vocabulary
-from algorithm.simulation import simulate_test, get_difficulties
-from model.utils import nearest_value
+from rat.data.raw.freeassociations.read_data import load_vocabulary
+from simulation import simulate_test, get_difficulties
+from rat.model.utils import nearest_value
 
 
 def simulate_threshold(thresholds, nr_words):
@@ -89,10 +89,13 @@ if __name__ == "__main__":
     min_nr_words, max_nr_words = 4, 35
     words = np.arange(min_nr_words, max_nr_words)
     try:
+        filename = 'perf_words.npz'
+        performance_w = np.load(filename)['performance_w']
         print('Loading existing simulation for words')
-        performance_w = np.load('perf_words.npz')['arr_0']
     except IOError:
+        print('Running algorithmic simulation (different number of words)')
         performance_w = simulate_number_of_words(words)
+        np.savez(filename, performance_w=performance_w)
 
     # Plot all results
     pl.plot(words, performance_w.T[3], label='all',
@@ -130,10 +133,13 @@ if __name__ == "__main__":
     words = 15
     thresholds = np.arange(min_threshold, max_threshold, step_threshold)
     try:
+        filename = 'perf_thresh.npz'
+        performance_t = np.load(filename)['performance_t'] 
         print('Loading existing simulation for thresholds.')
-        performance_t = np.load('perf_thresh.npz')['arr_0']
     except IOError:
+        print('Running algorithmic simulation (different number of threshols)')
         performance_t = simulate_threshold(thresholds, words)
+        np.savez(filename, performance_t=performance_t)
 
     # Plot all results
     pl.plot(thresholds, performance_t.T[3], label='all',
@@ -183,6 +189,6 @@ if __name__ == "__main__":
         print('\n')
 
     if 1:
-        pl.savefig('img/performance.pdf', bbox_inches='tight')
+        pl.savefig('performance.pdf', bbox_inches='tight')
 
     pl.show()

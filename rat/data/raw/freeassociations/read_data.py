@@ -8,6 +8,7 @@ from __future__ import division
 import numpy as np
 import cPickle as pickle
 import pdb
+import os
 
 def load_vocabulary():
     """
@@ -22,8 +23,8 @@ def load_vocabulary():
     """
 
     # absolute path to the free association norms data
-    path = '/home/ivana/phd/workspace/rat/data/processed/'
-    path += 'free_associations_vocabulary'
+    path = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir,
+            'processed', 'free_associations_vocabulary')
 
     f = open(path, 'rb')
     id2voc = pickle.load(f)

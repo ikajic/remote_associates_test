@@ -2,7 +2,7 @@ from __future__ import division
 from utils import step, remove_array_duplicates, mult
 
 import numpy as np
-from data.raw.freeassociations.read_data import load_vocabulary
+from rat.data.raw.freeassociations.read_data import load_vocabulary
 
 
 class Network(object):
@@ -34,7 +34,7 @@ class Network(object):
 
         # stimulus length and the duration of activity for a WTA unit
         self.stim_len = kwargs.get('stim_len', 50)
- 
+
         # weight pruning
         self.theta = kwargs.get('theta', 0)
         print('Theta %.3f' % self.theta)
@@ -43,9 +43,9 @@ class Network(object):
         # connection matrix with associative strengths
         self.W, self.ids, self.voc = load_vocabulary()
 
-        # prune weights less than threshold
+        # remove weights less than threshold
         if self.theta > 0:
-            print('Pruning connections...')
+            print('Removing connections...')
             self.W = np.where(self.W > self.theta, self.W, 0)
 
         # number of units

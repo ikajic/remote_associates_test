@@ -6,23 +6,23 @@ Parameters in the model are:
     * number of words (length of the search process
 """
 
-
 from __future__ import division
-from data.raw.freeassociations.read_data import load_vocabulary
-from algorithm.simulation import get_difficulties
+from rat.data.raw.freeassociations.read_data import load_vocabulary
+from rat.algorithm.simulation import get_difficulties
 
 import numpy as np
 import matplotlib.pyplot as pl
-import pdb
+import os
 
-from model.network import Network
+from rat.model.network import Network
 
 
 def simulate_test(**kwargs):
     # Load the problem set
     net = Network(**kwargs)
 
-    path_test = '../data/processed/rat_items'
+    path_test = os.path.join(os.path.dirname(__file__), os.pardir, 'data',
+            'processed', 'rat_items')
     items = np.loadtxt(path_test, dtype=np.character)
     W, ids, voc = load_vocabulary()
 

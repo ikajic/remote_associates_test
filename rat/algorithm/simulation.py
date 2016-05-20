@@ -8,12 +8,12 @@ Parameters in the model are:
 
 
 from __future__ import division
-from data.raw.freeassociations.read_data import load_vocabulary
 
 import numpy as np
 import matplotlib.pyplot as pl
 
 from spread_activity import spread_activity
+from rat.data.raw.freeassociations.read_data import load_vocabulary
 
 
 def get_difficulties(positions):
@@ -122,8 +122,9 @@ if __name__ == "__main__":
 
     easy, mid, hard = get_difficulties(positions)
 
-    print 'Easy:', 100*easy
-    print 'Mid:', 100*mid
-    print 'Hard:', 100*hard
+    print 'Percentage of problems solved:'
+    print 'Easy:', 100*easy, '%'
+    print 'Mid:', 100*mid, '%'
+    print 'Hard:', 100*hard, '%'
 
     plot_statistics(positions)

@@ -1,13 +1,13 @@
 Eight data sheets in a CSV format named:
 ```
-Cue_Target_Pairs.A-B_mod
-Cue_Target_Pairs.G-K_mod
-Cue_Target_Pairs.S_mod
-Cue_Target_Pairs.C_mod
-Cue_Target_Pairs.L-O_mod
-Cue_Target_Pairs.T-Z_mod
-Cue_Target_Pairs.D-F_mod
-Cue_Target_Pairs.P-R_mod  
+Cue_Target_Pairs.A-B
+Cue_Target_Pairs.G-K
+Cue_Target_Pairs.S
+Cue_Target_Pairs.C
+Cue_Target_Pairs.L-O
+Cue_Target_Pairs.T-Z
+Cue_Target_Pairs.D-F
+Cue_Target_Pairs.P-R
 ```
 are stored in this directory.
 
